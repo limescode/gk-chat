@@ -33,6 +33,7 @@ public class MyServer {
         System.out.println("Client has been connected");
         ClientHandler clientHandler = new ClientHandler(this, clientSocket);
         clientHandler.handle();
+        clientHandler.shutdownExecutorService();
     }
 
     public synchronized void broadcastMessage(String message, ClientHandler sender) throws IOException {

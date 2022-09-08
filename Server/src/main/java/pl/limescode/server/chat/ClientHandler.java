@@ -4,8 +4,12 @@ import pl.limescode.clientchat.commands.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientHandler {
+
+    private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     private MyServer server;
     private final Socket clientSocket;
@@ -21,7 +25,7 @@ public class ClientHandler {
     public void handle() throws IOException {
         inputStream = new ObjectInputStream(clientSocket.getInputStream());
         outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-        new Thread(() -> {
+        executorService.execute(() -> {
             try {
                 authenticate();
                 readMessages();
@@ -35,7 +39,7 @@ public class ClientHandler {
                     System.err.println("Failed to close connection");
                 }
             }
-        }).start();
+        });
     }
 
     private void authenticate() throws IOException {
@@ -117,5 +121,9 @@ public class ClientHandler {
 
     public String getUserName() {
         return userName;
+    }
+
+    public void shutdownExecutorService() {
+        executorService.shutdown();
     }
 }
