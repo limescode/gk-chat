@@ -9,6 +9,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pl.limescode.clientchat.controllers.AuthController;
 import pl.limescode.clientchat.controllers.ClientController;
+import pl.limescode.clientchat.history.HistoryService;
 import pl.limescode.clientchat.model.AuthTimeout;
 
 import java.io.IOException;
@@ -71,6 +72,11 @@ public class ClientChat extends Application {
         getChatStage().setTitle(userName);
         getAuthController().close();
         getAuthStage().close();
+
+        String history = HistoryService.getInstance().loadHistory(userName);
+        getChatController().chatTextArea.appendText(history);
+        getChatController().setMyself(userName);
+
         getChatStage().show();
     }
 

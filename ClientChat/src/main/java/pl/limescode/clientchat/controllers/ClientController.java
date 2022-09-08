@@ -12,6 +12,7 @@ import pl.limescode.clientchat.commands.Command;
 import pl.limescode.clientchat.commands.CommandType;
 import pl.limescode.clientchat.commands.UpdateUserListCommandData;
 import pl.limescode.clientchat.dialogs.Dialogs;
+import pl.limescode.clientchat.history.HistoryService;
 import pl.limescode.clientchat.model.Network;
 import pl.limescode.clientchat.model.ReadMessageListener;
 
@@ -32,6 +33,8 @@ public class ClientController {
 
     @FXML
     public ListView userList;
+
+    private String myself;
 
     public void sendMessage() {
         String message = messageTextArea.getText();
@@ -62,19 +65,22 @@ public class ClientController {
         messageTextArea.clear();
     }
 
-    public void appendMessageToChat(String sender, String message) {
-        chatTextArea.appendText(DateFormat.getInstance().format(new Date()));
-        chatTextArea.appendText(System.lineSeparator());
-
+    public void appendMessageToChat(String sender, String message) throws RuntimeException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(DateFormat.getInstance().format(new Date()));
+        sb.append(System.lineSeparator());
         if (sender != null) {
-            chatTextArea.appendText(sender + ":");
-            chatTextArea.appendText(System.lineSeparator());
+            sb.append(sender + ":");
+            sb.append(System.lineSeparator());
         }
+        sb.append(message);
+        sb.append(System.lineSeparator());
+        sb.append(System.lineSeparator());
 
-        chatTextArea.appendText(message);
-        chatTextArea.appendText(System.lineSeparator());
-        chatTextArea.appendText(System.lineSeparator());
-
+        chatTextArea.appendText(sb.toString());
+        if (!HistoryService.getInstance().saveHistory(myself, sb.toString())) {
+            throw new RuntimeException("Не удалось обновить историю чата");
+        }
     }
 
     private void requestFocusForTextArea() {
@@ -97,5 +103,13 @@ public class ClientController {
 
             }
         });
+    }
+
+    public String getMyself() {
+        return myself;
+    }
+
+    public void setMyself(String myself) {
+        this.myself = myself;
     }
 }
